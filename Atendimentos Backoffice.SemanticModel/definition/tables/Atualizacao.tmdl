@@ -1,0 +1,82 @@
+table Atualizacao
+	lineageTag: 20ab7fc2-9e8c-4083-9251-360346e544a6
+
+	measure DATE_ATUALIZACAO = FIRSTDATE(Atualizacao[Converte])
+		formatString: 0
+		lineageTag: e3008f8a-7d5c-4ed6-859f-6e485988996e
+
+	measure MSG_ATUALIZACAO = "Atualizado em: " & FORMAT([DATE_ATUALIZACAO], "dd/mm/yyyy HH:MM")
+		lineageTag: b9867387-850e-4ffd-8607-e76f704e07b7
+
+	measure %_SLA_MesAnterior =
+			
+			CALCULATE(
+			    [%_EncerradoNoPrazo],
+			    DATEADD(DIM_CALENDARIO[Date], -1, MONTH)
+			)
+		lineageTag: 8c31851c-a928-444a-906b-5304aa162b24
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Ícone SLA' = ```
+			
+			VAR SLA_Atual = [%_EncerradoNoPrazo]
+			VAR SLA_Anterior = [%_SLA_MesAnterior]
+			RETURN 
+			SWITCH(
+			    TRUE(),
+			    SLA_Atual > SLA_Anterior, "🔼",
+			    SLA_Atual < SLA_Anterior, "🔽",
+			    "➖"
+			)
+			```
+		lineageTag: f26e0fa9-9f8b-4e88-86c1-0dd008899ccc
+
+	measure 'SLA com Ícone' =
+			
+			"SLA " & FORMAT([%_EncerradoNoPrazo], "0.00%") & " " & [Ícone SLA]
+		lineageTag: 344427d6-4d60-427e-9ad5-10d468c06767
+
+	column Column1
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 42cdd413-58b6-4fec-b9a5-dbe9d1e13ee9
+		summarizeBy: none
+		sourceColumn: Column1
+
+		variation Variation
+			isDefault
+			relationship: e2eae232-4c5d-4918-8a3a-8627e10012e2
+			defaultHierarchy: LocalDateTable_68aa500d-a8c7-4437-8d28-4d28e15c8080.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Converte
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 087ef2b5-c4e8-43fa-882f-fb9b85b1bf52
+		summarizeBy: none
+		sourceColumn: Converte
+
+		variation Variation
+			isDefault
+			relationship: 48a0cc83-5308-4088-8ab0-9ebfe6c41447
+			defaultHierarchy: LocalDateTable_51244a41-dfe9-4f69-8d1b-4248b58a80a8.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Atualizacao = m
+		mode: import
+		source =
+				let
+				    Fonte = DateTimeZone.LocalNow(),
+				    #"Convertido para Tabela" = #table(1, {{Fonte}}),
+				    #"Personalização Adicionada" = Table.AddColumn(#"Convertido para Tabela", "Converte", each DateTimeZone.SwitchZone([Column1], -3)),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(#"Personalização Adicionada",{{"Converte", type datetimezone}, {"Column1", type datetimezone}})
+				in
+				    #"Tipo Alterado"
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

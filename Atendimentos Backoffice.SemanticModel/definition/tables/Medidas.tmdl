@@ -1,0 +1,158 @@
+table Medidas
+	lineageTag: d5bdc008-8cdc-4dd4-b7b9-9fef00550a03
+
+	measure qtd_Atendimentos =
+			
+			COUNTROWS(
+			    FT_ATENDIMENTOS
+			)
+		formatString: 0
+		lineageTag: c8b4476a-256f-423a-a843-0ade0cf7e905
+
+	measure qtd_EmAndamento =
+			
+			CALCULATE(
+			    [qtd_Atendimentos],
+			    USERELATIONSHIP(FT_ATENDIMENTOS[DataPrazo], DIM_CALENDARIO[Date]),
+			    ISBLANK(FT_ATENDIMENTOS[DataFim])
+			)
+		formatString: #,0
+		lineageTag: ddc812c1-5259-44d7-92cc-2d086d0c1327
+
+	measure qtd_Encerrados =
+			
+			CALCULATE(
+			    [qtd_Atendimentos],
+			    FILTER(
+			        FT_ATENDIMENTOS,
+			        NOT(ISBLANK(FT_ATENDIMENTOS[DataFim]))
+			    ))
+		formatString: #,0
+		lineageTag: acefceaf-31ef-4535-8827-4986299797ee
+
+	measure %_EncerradoAtraso =
+			
+			var encerrado = CALCULATE([qtd_Encerrados], FILTER(FT_ATENDIMENTOS, FT_ATENDIMENTOS[StatusSLA] = "Encerrado fora do prazo"))
+			return
+			divide(
+			    encerrado,
+			    [qtd_Encerrados],
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 5b28015c-a223-4b54-b7f1-b1fbd0b27d2e
+
+	measure %_EncerradoNoPrazo =
+			
+			var encerrado = CALCULATE([qtd_Encerrados], FILTER(FT_ATENDIMENTOS, FT_ATENDIMENTOS[StatusSLA] = "Encerrado no prazo"))
+			return
+			divide(
+			    encerrado,
+			    [qtd_Encerrados],
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 111404c6-0f88-4c27-aaf6-8f0bfd6c320a
+
+	measure qtd_EmAndamento_Atrasado =
+			
+			CALCULATE(
+			    [qtd_EmAndamento],
+			    USERELATIONSHIP(FT_ATENDIMENTOS[DataPrazo], DIM_CALENDARIO[Date]),
+			    FT_ATENDIMENTOS[StatusSLA] = "Em andamento fora do prazo"
+			)
+		formatString: #,0
+		lineageTag: d5e5dc09-1e0e-4f3c-9a8b-e0283bf73193
+
+	measure qtd_EmAndamento_NoPrazo =
+			
+			CALCULATE(
+			    [qtd_EmAndamento],
+			    USERELATIONSHIP(FT_ATENDIMENTOS[DataPrazo], DIM_CALENDARIO[Date]),
+			    FT_ATENDIMENTOS[StatusSLA] = "Em andamento no prazo"
+			)
+		formatString: #,0
+		lineageTag: 8a0f5ae6-ce5f-47af-93c2-9e501771756a
+
+	measure MediaDiasAtrasoAnd =
+			
+			CALCULATE(
+			    AVERAGE(FT_ATENDIMENTOS[QtdDiasAtraso]),
+			    ISBLANK(FT_ATENDIMENTOS[DataFim])
+			)
+		formatString: 0
+		lineageTag: 4098dbf4-f445-4f3b-8bc1-5967a557ce0c
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure %taxa_conclusao = divide([qtd_Encerrados], [qtd_Atendimentos], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 3ef77e14-2ef6-410c-9bf1-645aebdf6395
+
+	measure AVG_DiasCorridos = AVERAGE(FT_ATENDIMENTOS[QtdDiasCorridos])
+		lineageTag: c14970d2-bfaf-4492-8834-87ade113fa42
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure AVG_Avaliacao = AVERAGE(FT_ATENDIMENTOS[Nota])
+		lineageTag: e9c62f9d-3c13-4963-aee7-b0b9cb687d95
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure qtd_Solicitacoes = DISTINCTCOUNT(FT_ATENDIMENTOS[SolicitacaoID])
+		formatString: 0
+		lineageTag: b3106ae2-9891-4085-b06f-a13e40d9ff27
+
+	measure qtd_SolAv =
+			
+			CALCULATE(
+			    [qtd_Solicitacoes],
+			    not(ISBLANK(FT_ATENDIMENTOS[Nota]))
+			)
+		formatString: 0
+		lineageTag: 996b3bf6-a102-48e6-87dc-d8f6ff33790f
+
+	measure %SolAval = DIVIDE([qtd_SolAv], [qtd_Solicitacoes], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: add04f90-2a69-4cd1-a7ad-c64b53d96a3b
+
+	measure txt_aval = [qtd_SolAv] & " de " & [qtd_Solicitacoes] & " solicitações avaliadas. ("& format([%SolAval], "Percent") & ")"
+		lineageTag: 1f1bf183-388c-4c8c-8a36-865d72dc6a80
+
+	measure txt_escala_nota =
+			
+			format([AVG_Avaliacao], "#.##") & " de 5"
+		lineageTag: 453972e9-0858-4b81-b4e3-22fde7778f9f
+
+	measure star_nota =
+			
+			SWITCH(
+			    true(),
+			    [AVG_Avaliacao] < 1,
+			    "-",
+			    [AVG_Avaliacao] >= 1 && [AVG_Avaliacao] < 2,
+			    "⭐",
+			    [AVG_Avaliacao] >= 2 && [AVG_Avaliacao] < 3,
+			    "⭐⭐",
+			    [AVG_Avaliacao] >= 3 && [AVG_Avaliacao] < 4,
+			    "⭐⭐⭐",
+			    [AVG_Avaliacao] >= 4 && [AVG_Avaliacao] < 5,
+			    "⭐⭐⭐⭐",
+			    [AVG_Avaliacao] = 5,
+			    "⭐⭐⭐⭐⭐",
+			    ""
+			)
+		lineageTag: 88b4b2a1-dcc5-4b8f-8735-75e61199d2be
+
+	partition Medidas = m
+		mode: import
+		source =
+				let
+				    Fonte = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Coluna 1" = _t]),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(Fonte,{{"Coluna 1", type text}}),
+				    #"Colunas Removidas" = Table.RemoveColumns(#"Tipo Alterado",{"Coluna 1"})
+				in
+				    #"Colunas Removidas"
+
+	annotation PBI_ResultType = Table
+

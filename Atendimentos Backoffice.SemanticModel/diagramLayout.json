@@ -1,0 +1,73 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeIndex": "FT_ATENDIMENTOS",
+          "nodeLineageTag": "88eb25c9-fa8a-4253-8fdc-97fe6653534a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 766,
+            "y": 94
+          },
+          "nodeIndex": "Medidas",
+          "nodeLineageTag": "d5bdc008-8cdc-4dd4-b7b9-9fef00550a03",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 489,
+            "y": 58
+          },
+          "nodeIndex": "DIM_CALENDARIO",
+          "nodeLineageTag": "e59a5849-c75e-45e8-9879-71a15f73b562",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1213,
+            "y": 178.5
+          },
+          "nodeIndex": "Atualizacao",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas as tabelas",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas as tabelas",
+  "defaultDiagram": "Todas as tabelas"
+}

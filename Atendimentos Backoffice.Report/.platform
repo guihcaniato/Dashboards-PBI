@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Atendimentos Backoffice"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "89e91c18-a2f5-4e77-a3a4-a2d103c5b5fc"
+  }
+}

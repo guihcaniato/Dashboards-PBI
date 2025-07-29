@@ -1,0 +1,66 @@
+table DIM_CALENDARIO
+	lineageTag: e59a5849-c75e-45e8-9879-71a15f73b562
+
+	column Date
+		formatString: Short Date
+		lineageTag: 5f6cc9ee-d5fd-43f8-950d-bdc85fbb7e71
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: 8d2bfce8-1632-40bf-bf31-931b4dea1a44
+			defaultHierarchy: LocalDateTable_c4a2bf0f-3d09-4a26-aeb0-900c2f308f5a.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Mês = MONTH(DIM_CALENDARIO[Date])
+		formatString: 0
+		lineageTag: bc25700d-4e06-49f1-90a8-e1d7d435eb31
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ano = YEAR(DIM_CALENDARIO[Date])
+		formatString: 0
+		lineageTag: 37aff82c-b873-4713-b2aa-6d245cbd3ddc
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column MES_ANO =
+			
+			FORMAT(DIM_CALENDARIO[Date], "mm/yyyy", "pt-BR")
+		lineageTag: 48cfa80c-415a-41f6-8e04-9ab792d670b6
+		summarizeBy: none
+		sortByColumn: MES_ANO_SEQ
+
+		annotation SummarizationSetBy = Automatic
+
+	column MES_ANO_SEQ = FORMAT(DIM_CALENDARIO[Date], "yyyymm", "pt-BR")
+		dataType: int64
+		formatString: 0
+		lineageTag: bbad048a-492a-49b9-9828-38fa42c086a4
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column ULT_SIX_M_ATUAL =
+			
+			VAR SIX = EDATE(TODAY(), -6)
+			RETURN
+			IF(DIM_CALENDARIO[Date] < SIX, "N", "S")
+		lineageTag: 5c2a4f16-2518-48f2-b48b-10184a4d59e0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DIM_CALENDARIO = calculated
+		mode: import
+		source = CALENDARAUTO()
+
+	annotation PBI_Id = e0dbf0ba928d4a789d0096f38fc44db1
+

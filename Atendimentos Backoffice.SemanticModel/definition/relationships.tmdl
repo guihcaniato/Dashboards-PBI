@@ -1,0 +1,29 @@
+relationship 8d2bfce8-1632-40bf-bf31-931b4dea1a44
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DIM_CALENDARIO.Date
+	toColumn: LocalDateTable_c4a2bf0f-3d09-4a26-aeb0-900c2f308f5a.Date
+
+relationship b7c9a5fe-dfcf-fac0-5db9-ad7730e71903
+	fromColumn: FT_ATENDIMENTOS.DataFim
+	toColumn: DIM_CALENDARIO.Date
+
+relationship 84b853d4-00eb-0073-ac71-5772b76b06f1
+	isActive: false
+	fromColumn: FT_ATENDIMENTOS.DataInicio
+	toColumn: DIM_CALENDARIO.Date
+
+relationship e670aed2-c167-403f-ca12-5b9917231d7e
+	isActive: false
+	fromColumn: FT_ATENDIMENTOS.DataPrazo
+	toColumn: DIM_CALENDARIO.Date
+
+relationship e2eae232-4c5d-4918-8a3a-8627e10012e2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Atualizacao.Column1
+	toColumn: LocalDateTable_68aa500d-a8c7-4437-8d28-4d28e15c8080.Date
+
+relationship 48a0cc83-5308-4088-8ab0-9ebfe6c41447
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Atualizacao.Converte
+	toColumn: LocalDateTable_51244a41-dfe9-4f69-8d1b-4248b58a80a8.Date
+

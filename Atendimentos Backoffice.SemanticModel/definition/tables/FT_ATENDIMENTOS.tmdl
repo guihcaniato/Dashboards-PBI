@@ -1,0 +1,159 @@
+table FT_ATENDIMENTOS
+	lineageTag: 88eb25c9-fa8a-4253-8fdc-97fe6653534a
+
+	column SolicitacaoID
+		dataType: int64
+		formatString: 0
+		lineageTag: dac8a022-d47f-4ef2-86b3-80bb3917c6ac
+		summarizeBy: count
+		sourceColumn: SolicitacaoID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 5dcd9f06-de94-40e4-bd1f-0438909d33fa
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeServico
+		dataType: string
+		lineageTag: 11e0956e-9cb0-4f77-a509-8e64195b392b
+		summarizeBy: none
+		sourceColumn: NomeServico
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeTarefa
+		dataType: string
+		lineageTag: 289590de-bc96-4750-9fb3-24382efd9574
+		summarizeBy: none
+		sourceColumn: NomeTarefa
+
+		annotation SummarizationSetBy = Automatic
+
+	column SLA_Dias
+		dataType: int64
+		formatString: 0
+		lineageTag: d9956a3f-205d-404f-b90b-7ae137e624b2
+		summarizeBy: sum
+		sourceColumn: SLA_Dias
+
+		annotation SummarizationSetBy = Automatic
+
+	column Atendente
+		dataType: string
+		lineageTag: a4d60398-8745-456d-b88b-c1c206fff487
+		summarizeBy: none
+		sourceColumn: Atendente
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataInicio
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: aab1cc0b-ab9b-4e4d-bb2b-3fed8fca4c8c
+		summarizeBy: none
+		sourceColumn: DataInicio
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataFim
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 7bd12e5f-c790-4057-9aa3-5937e52508ee
+		summarizeBy: none
+		sourceColumn: DataFim
+
+		annotation SummarizationSetBy = Automatic
+
+	column QtdDiasCorridos
+		dataType: int64
+		formatString: 0
+		lineageTag: d5e6bf8f-8079-40de-ae62-a96686ef5743
+		summarizeBy: sum
+		sourceColumn: QtdDiasCorridos
+
+		annotation SummarizationSetBy = Automatic
+
+	column Observacoes
+		dataType: string
+		lineageTag: 093e7e5f-9ee0-4440-b7a4-c20557e3099b
+		summarizeBy: none
+		sourceColumn: Observacoes
+
+		annotation SummarizationSetBy = Automatic
+
+	column Nota
+		dataType: int64
+		formatString: 0
+		lineageTag: 40cbc1fe-d095-4c31-8731-c0b7dfd013dd
+		summarizeBy: sum
+		sourceColumn: Nota
+
+		annotation SummarizationSetBy = Automatic
+
+	column StatusSLA =
+			
+			var date_today = date(year([DATE_ATUALIZACAO]), month([DATE_ATUALIZACAO]), day([DATE_ATUALIZACAO]))
+			var dias_aberto = date_today - FT_ATENDIMENTOS[DataInicio]
+			return
+			SWITCH(
+			    TRUE(),
+			    not(isblank(FT_ATENDIMENTOS[QtdDiasCorridos])) && FT_ATENDIMENTOS[QtdDiasCorridos] <= FT_ATENDIMENTOS[SLA_Dias], "Encerrado no prazo",
+			    not(isblank(FT_ATENDIMENTOS[QtdDiasCorridos])) && FT_ATENDIMENTOS[QtdDiasCorridos] > FT_ATENDIMENTOS[SLA_Dias], "Encerrado fora do prazo",
+			    dias_aberto <= FT_ATENDIMENTOS[SLA_Dias], "Em andamento no prazo",
+			    dias_aberto > FT_ATENDIMENTOS[SLA_Dias], "Em andamento fora do prazo",
+			    ""
+			)
+		lineageTag: abed052a-8a18-47bf-98da-221c0c0b1f4c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataPrazo = FT_ATENDIMENTOS[DataInicio] + FT_ATENDIMENTOS[SLA_Dias]
+		formatString: General Date
+		lineageTag: 2cb0d68c-7715-4177-b3ca-f00132c1717f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Área
+		dataType: string
+		lineageTag: 24c7c6a0-867d-4155-af21-05e4901571aa
+		summarizeBy: none
+		sourceColumn: Área
+
+		annotation SummarizationSetBy = Automatic
+
+	column QtdDiasAtraso =
+			
+			var date_today = date(year([DATE_ATUALIZACAO]), month([DATE_ATUALIZACAO]), day([DATE_ATUALIZACAO]))
+			var data = if(ISBLANK(FT_ATENDIMENTOS[DataFim]), date_today, FT_ATENDIMENTOS[DataFim])
+			return
+			if(
+			    data <= FT_ATENDIMENTOS[DataPrazo], 0, data - FT_ATENDIMENTOS[DataPrazo]
+			)
+		lineageTag: 7f13f2e0-fc7c-427c-aa03-2cac5666c566
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition FT_ATENDIMENTOS = m
+		mode: import
+		source =
+				let
+				    Fonte = MySQL.Database("localhost", "backoffice_db", [ReturnSingleDatabase=true, Query="SELECT#(lf)#(tab)S.SolicitacaoID,#(lf)    S.Status,#(lf)    SE.NomeServico,#(lf)    T.NomeTarefa,#(lf)    A.NomeArea as Área,#(lf)    T.SLA_Dias,#(lf)    U.Nome as ""Atendente"",#(lf)#(tab)E.DataInicio,#(lf)    E.DataFim,#(lf)    datediff(E.DataFim, E.DataInicio) as ""QtdDiasCorridos"",#(lf)    E.Observacoes,#(lf)    AV.Nota#(lf)    FROM#(lf)    solicitacoes as S#(lf)    LEFT JOIN#(lf)    execucaotarefas as E on (S.SolicitacaoID = E.SolicitacaoID)#(lf)    LEFT JOIN#(lf)    tarefas as T on (E.TarefaID = T.TarefaID)#(lf)    LEFT JOIN#(lf)    area as A on (T.AreaID = A.AreaID)#(lf)    LEFT join#(lf)    servicos as SE on (T.ServicoID = SE.ServicoID)#(lf)    LEFT join #(lf)    usuarios as U on (E.UsuarioAtendenteID = U.UsuarioID)#(lf)    LEFT join#(lf)    avaliacoes as AV on (S.SolicitacaoID = AV.SolicitacaoID)", CreateNavigationProperties=false]),
+				    #"Linhas Classificadas" = Table.Sort(Fonte,{{"SolicitacaoID", Order.Ascending}, {"DataInicio", Order.Ascending}}),
+				    #"Linhas Filtradas" = Table.SelectRows(#"Linhas Classificadas", each ([NomeServico] <> null))
+				in
+				    #"Linhas Filtradas"
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

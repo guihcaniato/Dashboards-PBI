@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Atendimentos Backoffice"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "357428e2-1fe9-43df-9b42-5815b34a0d3e"
+  }
+}

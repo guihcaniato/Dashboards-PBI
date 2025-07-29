@@ -1,0 +1,27 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["FT_ATENDIMENTOS","Medidas","Atualizacao"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.145.1262.0 (25.07)+10bdeda5ab0db954b2cf824e7a117ad7cee97f88
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table FT_ATENDIMENTOS
+ref table DateTableTemplate_ba541836-1c8b-4533-a5fc-a0f8f8e90bd1
+ref table Medidas
+ref table DIM_CALENDARIO
+ref table LocalDateTable_c4a2bf0f-3d09-4a26-aeb0-900c2f308f5a
+ref table Atualizacao
+ref table LocalDateTable_68aa500d-a8c7-4437-8d28-4d28e15c8080
+ref table LocalDateTable_51244a41-dfe9-4f69-8d1b-4248b58a80a8
+
+ref cultureInfo pt-BR
+
